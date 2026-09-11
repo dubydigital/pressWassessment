@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  PantryPal
+//  SampleAISDK
 //
 //  Created by Mark Dubouzet on 9/11/26.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct ContentView: View {
+struct PersistenceView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var items: [Item]
 
@@ -56,6 +56,6 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    PersistenceView()
         .modelContainer(for: Item.self, inMemory: true)
 }
