@@ -13,6 +13,7 @@ struct ChatView: View {
     @State private var isPhotoPickerPresented = false
     @State private var isFileImporterPresented = false
     @State private var isAttachDialogPresented = false
+    @AppStorage(ChatFontSize.storageKey) private var chatFontSize: ChatFontSize = .medium
 
     var body: some View {
         NavigationStack {
@@ -21,6 +22,7 @@ struct ChatView: View {
                 if let errorMessage = viewModel.errorMessage {
                     errorBanner(errorMessage)
                 }
+                allergenNotice
                 composer
             }
             .background(Color(.systemGroupedBackground))
@@ -60,12 +62,12 @@ struct ChatView: View {
                     }
 
                     ForEach(viewModel.messages) { message in
-                        MessageBubble(message: message)
+                        MessageBubble(message: message, fontSize: chatFontSize)
                             .id(message.id)
                     }
 
                     if viewModel.activity.showsIndicator {
-                        ThinkingRow(activity: viewModel.activity)
+                        ThinkingRow(activity: viewModel.activity, fontSize: chatFontSize)
                             .id("activity")
                     }
                 }
@@ -84,13 +86,12 @@ struct ChatView: View {
 
     private var emptyState: some View {
         VStack(spacing: 8) {
-            Image(systemName: "bubble.left.and.bubble.right")
-                .font(.system(size: 36))
+            Image(systemName: "frying.pan")
+                .font(.system(size: 50))
                 .foregroundStyle(.secondary)
-            Text("Ask anything")
-                .font(.headline)
-            Text("Attach a photo or PDF, or turn on web search for current events.")
-                .font(.subheadline)
+            Text("Hungry for something?")
+                .font(chatFontSize.headlineFont)
+                .font(chatFontSize.secondaryFont)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
@@ -105,6 +106,9 @@ struct ChatView: View {
             }
 
             HStack(alignment: .bottom, spacing: 8) {
+                
+                // TODO: Allow for File attachment
+                /*
                 Button {
                     isAttachDialogPresented = true
                 } label: {
@@ -114,8 +118,9 @@ struct ChatView: View {
                 }
                 .disabled(viewModel.isBusy)
                 .accessibilityLabel("Attach a file")
-
+                 */
                 TextField("Message", text: $viewModel.draft, axis: .vertical)
+                    .font(chatFontSize.messageFont)
                     .textFieldStyle(.plain)
                     .lineLimit(1...6)
                     .padding(.horizontal, 12)
@@ -151,15 +156,7 @@ struct ChatView: View {
                 .disabled(viewModel.messages.isEmpty && viewModel.pendingAttachment == nil)
         }
         ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                viewModel.isWebSearchEnabled.toggle()
-            } label: {
-                Image(systemName: viewModel.isWebSearchEnabled ? "globe" : "globe.slash")
-            }
-            .accessibilityLabel("Web search")
-            .accessibilityValue(viewModel.isWebSearchEnabled ? "On" : "Off")
-            .foregroundStyle(viewModel.isWebSearchEnabled ? Color.accentColor : Color.secondary)
-            .disabled(viewModel.isBusy)
+            PopoverSampleView()
         }
     }
 
@@ -174,7 +171,7 @@ struct ChatView: View {
             }
             .accessibilityLabel("Remove attachment")
         }
-        .font(.caption)
+        .font(chatFontSize.secondaryFont)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .background(Color(.secondarySystemBackground), in: Capsule())
@@ -182,12 +179,23 @@ struct ChatView: View {
 
     private func errorBanner(_ message: String) -> some View {
         Text(message)
-            .font(.footnote)
+            .font(chatFontSize.secondaryFont)
             .foregroundStyle(.red)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
             .background(Color.red.opacity(0.08))
+    }
+
+    private var allergenNotice: some View {
+        Text(APIConfig.allergenNotice)
+            .font(chatFontSize.secondaryFont)
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(Color(.secondarySystemBackground))
+            .accessibilityLabel("Allergen notice")
     }
 
     private func scrollToBottom(_ proxy: ScrollViewProxy) {
@@ -238,6 +246,7 @@ struct ChatView: View {
 
 private struct MessageBubble: View {
     let message: ChatMessage
+    let fontSize: ChatFontSize
 
     var body: some View {
         HStack {
@@ -246,12 +255,13 @@ private struct MessageBubble: View {
             VStack(alignment: message.role == .user ? .trailing : .leading, spacing: 6) {
                 if let attachment = message.attachment {
                     Label(attachment.fileName, systemImage: attachment.isImage ? "photo" : "doc")
-                        .font(.caption)
+                        .font(fontSize.secondaryFont)
                         .foregroundStyle(message.role == .user ? Color.white.opacity(0.9) : Color.secondary)
                 }
 
                 if !message.content.isEmpty {
                     Text(message.content)
+                        .font(fontSize.messageFont)
                         .textSelection(.enabled)
                 }
             }
@@ -271,12 +281,13 @@ private struct MessageBubble: View {
 
 private struct ThinkingRow: View {
     let activity: AssistantActivity
+    let fontSize: ChatFontSize
 
     var body: some View {
         HStack(spacing: 10) {
             ProgressView()
             Text(activity.statusText)
-                .font(.subheadline)
+                .font(fontSize.messageFont)
                 .foregroundStyle(.secondary)
             Spacer()
         }
