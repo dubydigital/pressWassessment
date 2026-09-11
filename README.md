@@ -28,7 +28,12 @@ Ready at http://localhost:3000 when you see:
 API Server actively listening on: http://localhost:3000
 ```
 
+
+3. Run the xcode project: PantryPal.xcodeproj
+
 Stop with `Ctrl+C`. Rebuild after code changes with `docker compose up --build`.
+
+
 
 ## What the app can do
 
