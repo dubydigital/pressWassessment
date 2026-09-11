@@ -26,7 +26,7 @@ struct ChatView: View {
                 composer
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Chat")
+            .navigationTitle("PantryPal")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
             .confirmationDialog("Attach", isPresented: $isAttachDialogPresented, titleVisibility: .visible) {
@@ -91,6 +91,7 @@ struct ChatView: View {
                 .foregroundStyle(.secondary)
             Text("Hungry for something?")
                 .font(chatFontSize.headlineFont)
+            Text("Tell me what’s in the fridge and what pans you have.")
                 .font(chatFontSize.secondaryFont)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
